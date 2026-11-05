@@ -225,12 +225,12 @@ export default function AuthPage() {
             )}
           </div>
 
-          <div className="relative flex items-center justify-center">
-            <div className="border-t border-brand-secondary w-full" />
-            <span className="bg-brand-surface px-3 text-[11px] font-bold uppercase tracking-wider text-brand-navy/45">
+          <div className="flex items-center gap-3">
+            <div className="h-px bg-brand-navy/15 flex-1" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-brand-navy/50 whitespace-nowrap shrink-0">
               Or with email
             </span>
-            <div className="border-t border-brand-secondary w-full" />
+            <div className="h-px bg-brand-navy/15 flex-1" />
           </div>
 
           {/* Email & Password Form */}
@@ -398,3 +398,4 @@ export default function AuthPage() {
     </div>
   )
 }
+
