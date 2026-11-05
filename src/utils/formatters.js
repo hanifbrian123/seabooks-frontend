@@ -23,3 +23,4 @@ export function formatDate(dateString) {
     day: 'numeric',
   }).format(date)
 }
+

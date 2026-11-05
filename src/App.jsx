@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import VesselsPage from './pages/VesselsPage'
 import CrewPage from './pages/CrewPage'
+import KasbonPage from './pages/KasbonPage'
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -30,15 +31,7 @@ export default function App() {
           />
           <Route path="vessels" element={<VesselsPage />} />
           <Route path="crew" element={<CrewPage />} />
-          <Route
-            path="kasbon"
-            element={
-              <PlaceholderPage
-                title="Crew Cash Advances (Kasbon)"
-                description="Track crew cash advance loans and repayments across trips."
-              />
-            }
-          />
+          <Route path="kasbon" element={<KasbonPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
