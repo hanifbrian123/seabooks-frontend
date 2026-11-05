@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #122056;
+  --color-brand-accent: #5B65DC;
+  --color-brand-secondary: #EEEFFD;
+  --color-brand-bg: #FAFAFD;
+  --color-brand-surface: #FFFFFF;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-navy);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}

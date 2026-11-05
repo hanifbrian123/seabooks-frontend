@@ -1,7 +1,60 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+
+function PlaceholderPage({ title, description }) {
+  return (
+    <div className="bg-brand-surface rounded-2xl p-8 border border-brand-secondary shadow-xs">
+      <div className="w-12 h-1.5 bg-brand-accent rounded-full mb-4" />
+      <h1 className="text-2xl font-bold text-brand-navy mb-2">{title}</h1>
+      <p className="text-brand-navy/70">{description}</p>
+    </div>
+  )
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1>FishCatch Fleet Management</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Navigate to="/trips" replace />} />
+          <Route
+            path="trips"
+            element={
+              <PlaceholderPage
+                title="Trips & Accounting"
+                description="Manage fishing vessel trips, fish sales income, and trip expenses with integrated crew cash advance deductions."
+              />
+            }
+          />
+          <Route
+            path="vessels"
+            element={
+              <PlaceholderPage
+                title="Fleet Vessels"
+                description="Manage your fishing vessels, registration numbers, and operational status."
+              />
+            }
+          />
+          <Route
+            path="crew"
+            element={
+              <PlaceholderPage
+                title="Crew Members (ABK)"
+                description="Manage vessel crew members, roles, contact information, and active kasbon balances."
+              />
+            }
+          />
+          <Route
+            path="kasbon"
+            element={
+              <PlaceholderPage
+                title="Crew Cash Advances (Kasbon)"
+                description="Track crew cash advance loans and repayments across trips."
+              />
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
