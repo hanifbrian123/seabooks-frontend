@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import VesselsPage from './pages/VesselsPage'
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -26,15 +27,7 @@ export default function App() {
               />
             }
           />
-          <Route
-            path="vessels"
-            element={
-              <PlaceholderPage
-                title="Fleet Vessels"
-                description="Manage your fishing vessels, registration numbers, and operational status."
-              />
-            }
-          />
+          <Route path="vessels" element={<VesselsPage />} />
           <Route
             path="crew"
             element={
