@@ -66,3 +66,26 @@ export const crewApi = {
       method: 'DELETE',
     }),
 }
+
+export const kasbonApi = {
+  getAll: (crewMemberId) => {
+    const query = crewMemberId ? `?crewMemberId=${crewMemberId}` : ''
+    return apiRequest(`/kasbon${query}`)
+  },
+  getById: (id) => apiRequest(`/kasbon/${id}`),
+  create: (payload) =>
+    apiRequest('/kasbon', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id, payload) =>
+    apiRequest(`/kasbon/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id) =>
+    apiRequest(`/kasbon/${id}`, {
+      method: 'DELETE',
+    }),
+}
+
