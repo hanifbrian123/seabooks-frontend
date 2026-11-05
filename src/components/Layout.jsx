@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Anchor, Compass, Menu, Ship, Users, Wallet, X } from 'lucide-react'
+import { Anchor, Compass, LogOut, Menu, Ship, Users, Wallet, X } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/trips', label: 'Trips & Accounting', icon: Compass },
@@ -11,6 +12,14 @@ const navItems = [
 
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { user, logout } = useAuth()
+
+  const initials = (user?.name || user?.email || 'U')
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-navy flex">
@@ -79,20 +88,35 @@ export default function Layout() {
           })}
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-brand-secondary">
-          <div className="px-3 py-2.5 rounded-xl bg-brand-secondary/60 text-xs text-brand-navy/70">
-            <span className="font-bold text-brand-navy block">
-              Fleet Operations
-            </span>
-            <span>Vessel & Trip Bookkeeping</span>
+        {/* User Account & Sign Out Footer */}
+        <div className="p-4 border-t border-brand-secondary space-y-2.5">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-brand-secondary/60">
+            <div className="w-9 h-9 rounded-lg bg-brand-accent text-brand-surface font-bold text-xs flex items-center justify-center shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-brand-navy truncate">
+                {user?.name || 'Fleet Owner'}
+              </p>
+              <p className="text-[11px] text-brand-navy/60 truncate">
+                {user?.email || ''}
+              </p>
+            </div>
           </div>
+
+          <button
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-brand-secondary hover:bg-red-50 text-brand-navy hover:text-red-600 text-xs font-bold transition cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
       {/* Main Content Area (#FAFAFD) */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Toggle Bar (only visible on small screens) */}
+        {/* Mobile Toggle Bar */}
         <div className="md:hidden h-14 bg-brand-surface border-b border-brand-secondary px-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-brand-surface">

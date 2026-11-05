@@ -1,12 +1,18 @@
 const API_BASE = '/api'
+export const TOKEN_STORAGE_KEY = 'fishcatch_token'
+export const USER_STORAGE_KEY = 'fishcatch_user'
 
 export async function apiRequest(endpoint, options = {}) {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY)
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  }
+
   const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
     ...options,
+    headers,
   }
 
   const response = await fetch(`${API_BASE}${endpoint}`, config)
@@ -17,6 +23,10 @@ export async function apiRequest(endpoint, options = {}) {
 
   const data = await response.json().catch(() => null)
 
+  if (response.status === 401 && !endpoint.startsWith('/auth/')) {
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'))
+  }
+
   if (!response.ok) {
     const errorMsg =
       data?.errors
@@ -26,6 +36,25 @@ export async function apiRequest(endpoint, options = {}) {
   }
 
   return data
+}
+
+export const authApi = {
+  register: (payload) =>
+    apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  login: (payload) =>
+    apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  googleAuth: (payload) =>
+    apiRequest('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  me: () => apiRequest('/auth/me'),
 }
 
 export const vesselApi = {
@@ -137,4 +166,3 @@ export const tripApi = {
       method: 'DELETE',
     }),
 }
-
