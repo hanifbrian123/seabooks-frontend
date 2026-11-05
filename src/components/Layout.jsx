@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Anchor, Compass, Ship, Users, Wallet } from 'lucide-react'
+import { Anchor, Compass, Menu, Ship, Users, Wallet, X } from 'lucide-react'
 
 const navItems = [
   { to: '/trips', label: 'Trips & Accounting', icon: Compass },
@@ -9,13 +10,28 @@ const navItems = [
 ]
 
 export default function Layout() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-navy flex flex-col">
-      {/* Top Menu Bar (#FFFFFF) */}
-      <header className="bg-brand-surface border-b border-brand-secondary sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-brand-bg text-brand-navy flex">
+      {/* Mobile Sidebar Backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-brand-navy/40 backdrop-blur-xs md:hidden"
+        />
+      )}
+
+      {/* Left Sidebar (#FFFFFF) */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-brand-surface border-r border-brand-secondary flex flex-col transition-transform duration-200 md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="h-16 px-6 border-b border-brand-secondary flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-accent flex items-center justify-center text-brand-surface shadow-xs">
+            <div className="w-10 h-10 rounded-xl bg-brand-accent flex items-center justify-center text-brand-surface shadow-xs shrink-0">
               <Anchor className="w-5 h-5" />
             </div>
             <div>
@@ -23,40 +39,79 @@ export default function Layout() {
                 FishCatch
               </span>
               <span className="text-xs text-brand-navy/60 font-medium">
-                Fleet & Trip Accounting
+                Fleet & Accounting
               </span>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 sm:gap-2">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'bg-brand-accent text-brand-surface shadow-xs'
-                        : 'text-brand-navy/80 hover:bg-brand-secondary hover:text-brand-navy'
-                    }`
-                  }
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden md:inline">{item.label}</span>
-                </NavLink>
-              )
-            })}
-          </nav>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="p-1.5 rounded-lg text-brand-navy/60 hover:bg-brand-secondary md:hidden cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      </header>
 
-      {/* Main Page Content (#FAFAFD) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
-      </main>
+        {/* Navigation Links */}
+        <div className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+          <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-brand-navy/50">
+            Operations Menu
+          </div>
+          {navItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-brand-accent text-brand-surface shadow-xs'
+                      : 'text-brand-navy/80 hover:bg-brand-secondary hover:text-brand-navy'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{item.label}</span>
+              </NavLink>
+            )
+          })}
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-brand-secondary">
+          <div className="px-3 py-2.5 rounded-xl bg-brand-secondary/60 text-xs text-brand-navy/70">
+            <span className="font-bold text-brand-navy block">
+              Fleet Operations
+            </span>
+            <span>Vessel & Trip Bookkeeping</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area (#FAFAFD) */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Toggle Bar (only visible on small screens) */}
+        <div className="md:hidden h-14 bg-brand-surface border-b border-brand-secondary px-4 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-brand-surface">
+              <Anchor className="w-4 h-4" />
+            </div>
+            <span className="font-bold text-base text-brand-navy">FishCatch</span>
+          </div>
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="p-2 rounded-lg text-brand-navy hover:bg-brand-secondary cursor-pointer"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }
-
