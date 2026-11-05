@@ -71,6 +71,22 @@ export function AuthProvider({ children }) {
     return res
   }
 
+  const startDemo = async () => {
+    const res = await authApi.startDemo()
+    saveSession(res)
+    return res
+  }
+
+  const logout = async () => {
+    try {
+      await authApi.logout()
+    } catch {
+      // Ignore network/token errors during logout cleanup
+    } finally {
+      clearSession()
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -79,7 +95,8 @@ export function AuthProvider({ children }) {
         register,
         login,
         loginWithGoogle,
-        logout: clearSession,
+        startDemo,
+        logout,
       }}
     >
       {children}
@@ -94,3 +111,4 @@ export function useAuth() {
   }
   return ctx
 }
+

@@ -54,6 +54,14 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  startDemo: () =>
+    apiRequest('/auth/demo', {
+      method: 'POST',
+    }),
+  logout: () =>
+    apiRequest('/auth/logout', {
+      method: 'POST',
+    }),
   me: () => apiRequest('/auth/me'),
 }
 

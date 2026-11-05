@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Anchor, ArrowRight, Lock, Mail, User as UserIcon, X } from 'lucide-react'
+import { Anchor, ArrowRight, Lock, Mail, Sparkles, User as UserIcon, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 function GoogleIcon() {
@@ -27,7 +27,7 @@ function GoogleIcon() {
 }
 
 export default function AuthPage() {
-  const { user, login, register, loginWithGoogle } = useAuth()
+  const { user, login, register, loginWithGoogle, startDemo } = useAuth()
   const [mode, setMode] = useState('LOGIN') // 'LOGIN' | 'REGISTER'
   const [formData, setFormData] = useState({
     name: '',
@@ -135,6 +135,18 @@ export default function AuthPage() {
     }
   }
 
+  const handleStartDemo = async () => {
+    try {
+      setSubmitting(true)
+      setError('')
+      await startDemo()
+    } catch (err) {
+      setError(err.message || 'Failed to launch demo session')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col justify-center items-center px-4 py-12">
       {/* Brand Header */}
@@ -206,13 +218,24 @@ export default function AuthPage() {
             </div>
           )}
 
-          {/* Google Sign-In Section */}
-          <div>
+          {/* Google Sign-In & Interactive Demo Section */}
+          <div className="space-y-2.5">
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={handleStartDemo}
+              className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-brand-secondary hover:bg-brand-accent text-brand-navy hover:text-brand-surface border border-brand-accent/30 text-sm font-bold transition cursor-pointer shadow-2xs"
+            >
+              <Sparkles className="w-4 h-4 text-brand-accent group-hover:text-brand-surface" />
+              <span>Try Interactive Demo (Pre-filled & Auto-Cleaned)</span>
+            </button>
+
             {googleClientId ? (
               <div ref={googleBtnRef} className="flex justify-center" />
             ) : (
               <button
                 type="button"
+                disabled={submitting}
                 onClick={() => {
                   setError('')
                   setIsGoogleModalOpen(true)

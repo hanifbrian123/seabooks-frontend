@@ -109,13 +109,26 @@ export default function Layout() {
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-brand-secondary hover:bg-red-50 text-brand-navy hover:text-red-600 text-xs font-bold transition cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
+            <span>{user?.isDemo ? 'End Demo & Delete Data' : 'Sign Out'}</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content Area (#FAFAFD) */}
       <div className="flex-1 flex flex-col min-w-0">
+        {user?.isDemo && (
+          <div className="bg-brand-accent text-brand-surface px-4 py-2 text-xs font-medium flex flex-wrap items-center justify-between gap-2">
+            <span>
+              <strong>Interactive Demo Mode:</strong> This temporary account comes pre-loaded with sample data. Everything you change is isolated and will be automatically deleted when you end the demo or when the session expires.
+            </span>
+            <button
+              onClick={logout}
+              className="px-2.5 py-1 rounded-lg bg-brand-surface text-brand-navy font-bold text-[11px] hover:opacity-90 transition cursor-pointer shrink-0"
+            >
+              End Demo Now
+            </button>
+          </div>
+        )}
         {/* Mobile Toggle Bar */}
         <div className="md:hidden h-14 bg-brand-surface border-b border-brand-secondary px-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2.5">
