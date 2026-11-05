@@ -89,3 +89,52 @@ export const kasbonApi = {
     }),
 }
 
+export const tripApi = {
+  getAll: () => apiRequest('/trips'),
+  getById: (id) => apiRequest(`/trips/${id}`),
+  create: (payload) =>
+    apiRequest('/trips', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  update: (id, payload) =>
+    apiRequest(`/trips/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  delete: (id) =>
+    apiRequest(`/trips/${id}`, {
+      method: 'DELETE',
+    }),
+  getIncomes: (tripId) => apiRequest(`/trips/${tripId}/incomes`),
+  createIncome: (tripId, payload) =>
+    apiRequest(`/trips/${tripId}/incomes`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateIncome: (tripId, incomeId, payload) =>
+    apiRequest(`/trips/${tripId}/incomes/${incomeId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  deleteIncome: (tripId, incomeId) =>
+    apiRequest(`/trips/${tripId}/incomes/${incomeId}`, {
+      method: 'DELETE',
+    }),
+  getExpenses: (tripId) => apiRequest(`/trips/${tripId}/expenses`),
+  createExpense: (tripId, payload) =>
+    apiRequest(`/trips/${tripId}/expenses`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateExpense: (tripId, expenseId, payload) =>
+    apiRequest(`/trips/${tripId}/expenses/${expenseId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  deleteExpense: (tripId, expenseId) =>
+    apiRequest(`/trips/${tripId}/expenses/${expenseId}`, {
+      method: 'DELETE',
+    }),
+}
+
