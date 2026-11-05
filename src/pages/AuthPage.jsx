@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Anchor, ArrowRight, Lock, Mail, Sparkles, User as UserIcon, X } from 'lucide-react'
+import { Anchor, ArrowRight, Lock, Mail, User as UserIcon, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 function GoogleIcon() {
@@ -43,52 +43,58 @@ export default function AuthPage() {
     name: '',
     email: '',
   })
+  const [customClientId, setCustomClientId] = useState(
+    () => localStorage.getItem('fishcatch_google_client_id') || ''
+  )
 
-  const googleBtnRef = useRef(null)
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+  const activeGoogleClientId =
+    import.meta.env.VITE_GOOGLE_CLIENT_ID || customClientId.trim()
 
   useEffect(() => {
-    if (!googleClientId) return
-
     const scriptId = 'google-identity-services'
-    const initializeGoogle = () => {
-      if (window.google?.accounts?.id && googleBtnRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: async (response) => {
-            try {
-              setSubmitting(true)
-              setError('')
-              await loginWithGoogle({ credential: response.credential })
-            } catch (err) {
-              setError(err.message || 'Google sign-in failed')
-            } finally {
-              setSubmitting(false)
-            }
-          },
-        })
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          theme: 'outline',
-          size: 'large',
-          width: 360,
-          text: 'continue_with',
-        })
-      }
-    }
-
-    if (document.getElementById(scriptId)) {
-      initializeGoogle()
-      return
-    }
+    if (document.getElementById(scriptId)) return
 
     const script = document.createElement('script')
     script.id = scriptId
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
     script.defer = true
-    script.onload = initializeGoogle
     document.body.appendChild(script)
-  }, [googleClientId, loginWithGoogle])
+  }, [])
+
+  const handleContinueWithGoogle = () => {
+    setError('')
+
+    if (activeGoogleClientId && window.google?.accounts?.oauth2) {
+      const tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: activeGoogleClientId,
+        scope: 'openid email profile',
+        prompt: 'select_account',
+        callback: async (tokenResponse) => {
+          if (tokenResponse.error) {
+            setError(
+              tokenResponse.error_description ||
+                'Google authentication was cancelled or failed'
+            )
+            return
+          }
+          try {
+            setSubmitting(true)
+            setError('')
+            await loginWithGoogle({ accessToken: tokenResponse.access_token })
+          } catch (err) {
+            setError(err.message || 'Google sign-in failed')
+          } finally {
+            setSubmitting(false)
+          }
+        },
+      })
+      tokenClient.requestAccessToken({ prompt: 'select_account' })
+      return
+    }
+
+    setIsGoogleModalOpen(true)
+  }
 
   if (user) {
     return <Navigate to="/trips" replace />
@@ -226,26 +232,18 @@ export default function AuthPage() {
               onClick={handleStartDemo}
               className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-brand-secondary hover:bg-brand-accent text-brand-navy hover:text-brand-surface border border-brand-accent/30 text-sm font-bold transition cursor-pointer shadow-2xs"
             >
-              <Sparkles className="w-4 h-4 text-brand-accent group-hover:text-brand-surface" />
               <span>Try Interactive Demo (Pre-filled & Auto-Cleaned)</span>
             </button>
 
-            {googleClientId ? (
-              <div ref={googleBtnRef} className="flex justify-center" />
-            ) : (
-              <button
-                type="button"
-                disabled={submitting}
-                onClick={() => {
-                  setError('')
-                  setIsGoogleModalOpen(true)
-                }}
-                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-navy/25 hover:bg-brand-secondary/50 text-brand-navy text-sm font-semibold transition cursor-pointer shadow-2xs"
-              >
-                <GoogleIcon />
-                <span>Continue with Google</span>
-              </button>
-            )}
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={handleContinueWithGoogle}
+              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl bg-brand-surface border border-brand-navy/25 hover:bg-brand-secondary/50 text-brand-navy text-sm font-semibold transition cursor-pointer shadow-2xs"
+            >
+              <GoogleIcon />
+              <span>Continue with Google</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-3">
@@ -392,10 +390,38 @@ export default function AuthPage() {
                 />
               </div>
 
-              <div className="rounded-xl bg-brand-secondary/60 p-3 text-[11px] text-brand-navy/70">
-                <strong>Tip for Production OAuth Popup:</strong> You can also set{' '}
-                <code className="font-mono text-brand-accent">VITE_GOOGLE_CLIENT_ID</code>{' '}
-                in <code className="font-mono">frontend/.env</code> to use Google Cloud Console&apos;s native OAuth popup.
+              <div className="rounded-xl bg-brand-secondary/60 p-3.5 space-y-2.5 text-[11px] text-brand-navy/80">
+                <p className="font-bold text-brand-navy">
+                  Want the real Google Browser Account Chooser popup?
+                </p>
+                <p>
+                  Google requires an OAuth 2.0 Client ID (with{' '}
+                  <code className="font-mono text-brand-accent">http://localhost:5173</code>{' '}
+                  in Authorized JavaScript origins) before Chrome/Edge will display your active browser Google accounts.
+                </p>
+                <div className="flex gap-2 pt-1">
+                  <input
+                    type="text"
+                    value={customClientId}
+                    onChange={(e) => setCustomClientId(e.target.value)}
+                    placeholder="Paste xxx.apps.googleusercontent.com"
+                    className="flex-1 px-2.5 py-1.5 rounded-lg text-brand-navy text-xs bg-brand-surface"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const trimmed = customClientId.trim()
+                      if (trimmed) {
+                        localStorage.setItem('fishcatch_google_client_id', trimmed)
+                        setIsGoogleModalOpen(false)
+                        setTimeout(() => handleContinueWithGoogle(), 100)
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-brand-navy text-brand-surface text-xs font-semibold hover:opacity-90 transition cursor-pointer shrink-0"
+                  >
+                    Use Client ID
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-brand-secondary">
