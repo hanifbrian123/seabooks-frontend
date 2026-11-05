@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { Anchor, ArrowRight, Lock, Mail, User as UserIcon, X } from 'lucide-react'
+import { Anchor, ArrowRight, Lock, Mail, User as UserIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 function GoogleIcon() {
@@ -37,18 +37,7 @@ export default function AuthPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  // Quick Google Sign-In modal state (used when VITE_GOOGLE_CLIENT_ID is not yet set)
-  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false)
-  const [googleForm, setGoogleForm] = useState({
-    name: '',
-    email: '',
-  })
-  const [customClientId, setCustomClientId] = useState(
-    () => localStorage.getItem('fishcatch_google_client_id') || ''
-  )
-
-  const activeGoogleClientId =
-    import.meta.env.VITE_GOOGLE_CLIENT_ID || customClientId.trim()
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 
   useEffect(() => {
     const scriptId = 'google-identity-services'
@@ -65,35 +54,40 @@ export default function AuthPage() {
   const handleContinueWithGoogle = () => {
     setError('')
 
-    if (activeGoogleClientId && window.google?.accounts?.oauth2) {
-      const tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: activeGoogleClientId,
-        scope: 'openid email profile',
-        prompt: 'select_account',
-        callback: async (tokenResponse) => {
-          if (tokenResponse.error) {
-            setError(
-              tokenResponse.error_description ||
-                'Google authentication was cancelled or failed'
-            )
-            return
-          }
-          try {
-            setSubmitting(true)
-            setError('')
-            await loginWithGoogle({ accessToken: tokenResponse.access_token })
-          } catch (err) {
-            setError(err.message || 'Google sign-in failed')
-          } finally {
-            setSubmitting(false)
-          }
-        },
-      })
-      tokenClient.requestAccessToken({ prompt: 'select_account' })
+    if (!googleClientId) {
+      setError('Google OAuth is not configured yet (missing VITE_GOOGLE_CLIENT_ID in .env).')
       return
     }
 
-    setIsGoogleModalOpen(true)
+    if (!window.google?.accounts?.oauth2) {
+      setError('Google Sign-In service is still loading. Please try again in a moment.')
+      return
+    }
+
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: googleClientId,
+      scope: 'openid email profile',
+      prompt: 'select_account',
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          setError(
+            tokenResponse.error_description ||
+              'Google authentication was cancelled or failed'
+          )
+          return
+        }
+        try {
+          setSubmitting(true)
+          setError('')
+          await loginWithGoogle({ accessToken: tokenResponse.access_token })
+        } catch (err) {
+          setError(err.message || 'Google sign-in failed')
+        } finally {
+          setSubmitting(false)
+        }
+      },
+    })
+    tokenClient.requestAccessToken({ prompt: 'select_account' })
   }
 
   if (user) {
@@ -119,23 +113,6 @@ export default function AuthPage() {
       }
     } catch (err) {
       setError(err.message || 'Authentication failed')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleGoogleQuickSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      setSubmitting(true)
-      setError('')
-      await loginWithGoogle({
-        name: googleForm.name,
-        email: googleForm.email,
-      })
-      setIsGoogleModalOpen(false)
-    } catch (err) {
-      setError(err.message || 'Google authentication failed')
     } finally {
       setSubmitting(false)
     }
@@ -333,117 +310,6 @@ export default function AuthPage() {
           </form>
         </div>
       </div>
-
-      {/* Google Account Sign-In Modal (when VITE_GOOGLE_CLIENT_ID is not yet set in .env) */}
-      {isGoogleModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-navy/40 backdrop-blur-xs p-4">
-          <div className="bg-brand-surface rounded-2xl border border-brand-secondary shadow-xl max-w-md w-full overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-brand-secondary">
-              <div className="flex items-center gap-2.5">
-                <GoogleIcon />
-                <h2 className="text-base font-bold text-brand-navy">
-                  Sign in with Google
-                </h2>
-              </div>
-              <button
-                onClick={() => setIsGoogleModalOpen(false)}
-                className="p-1.5 rounded-lg text-brand-navy/60 hover:bg-brand-secondary hover:text-brand-navy transition cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleGoogleQuickSubmit} className="p-6 space-y-4">
-              <p className="text-xs text-brand-navy/70">
-                Enter your Google account details below to sign in or automatically register your isolated fleet workspace.
-              </p>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-brand-navy/80 mb-1.5">
-                  Google Email *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={googleForm.email}
-                  onChange={(e) =>
-                    setGoogleForm({ ...googleForm, email: e.target.value })
-                  }
-                  placeholder="yourname@gmail.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl text-brand-navy text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-brand-navy/80 mb-1.5">
-                  Display Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={googleForm.name}
-                  onChange={(e) =>
-                    setGoogleForm({ ...googleForm, name: e.target.value })
-                  }
-                  placeholder="e.g. Brian Fleet Owner"
-                  className="w-full px-3.5 py-2.5 rounded-xl text-brand-navy text-sm"
-                />
-              </div>
-
-              <div className="rounded-xl bg-brand-secondary/60 p-3.5 space-y-2.5 text-[11px] text-brand-navy/80">
-                <p className="font-bold text-brand-navy">
-                  Want the real Google Browser Account Chooser popup?
-                </p>
-                <p>
-                  Google requires an OAuth 2.0 Client ID (with{' '}
-                  <code className="font-mono text-brand-accent">http://localhost:5173</code>{' '}
-                  in Authorized JavaScript origins) before Chrome/Edge will display your active browser Google accounts.
-                </p>
-                <div className="flex gap-2 pt-1">
-                  <input
-                    type="text"
-                    value={customClientId}
-                    onChange={(e) => setCustomClientId(e.target.value)}
-                    placeholder="Paste xxx.apps.googleusercontent.com"
-                    className="flex-1 px-2.5 py-1.5 rounded-lg text-brand-navy text-xs bg-brand-surface"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const trimmed = customClientId.trim()
-                      if (trimmed) {
-                        localStorage.setItem('fishcatch_google_client_id', trimmed)
-                        setIsGoogleModalOpen(false)
-                        setTimeout(() => handleContinueWithGoogle(), 100)
-                      }
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-brand-navy text-brand-surface text-xs font-semibold hover:opacity-90 transition cursor-pointer shrink-0"
-                  >
-                    Use Client ID
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-brand-secondary">
-                <button
-                  type="button"
-                  onClick={() => setIsGoogleModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-brand-secondary text-brand-navy text-sm font-semibold hover:opacity-90 transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 rounded-xl bg-brand-accent text-brand-surface text-sm font-semibold hover:opacity-95 transition disabled:opacity-50 cursor-pointer"
-                >
-                  {submitting ? 'Signing in...' : 'Continue with Google'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
