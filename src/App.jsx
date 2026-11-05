@@ -1,18 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import TripsPage from './pages/TripsPage'
+import TripDetailPage from './pages/TripDetailPage'
 import VesselsPage from './pages/VesselsPage'
 import CrewPage from './pages/CrewPage'
 import KasbonPage from './pages/KasbonPage'
-
-function PlaceholderPage({ title, description }) {
-  return (
-    <div className="bg-brand-surface rounded-2xl p-8 border border-brand-secondary shadow-xs">
-      <div className="w-12 h-1.5 bg-brand-accent rounded-full mb-4" />
-      <h1 className="text-2xl font-bold text-brand-navy mb-2">{title}</h1>
-      <p className="text-brand-navy/70">{description}</p>
-    </div>
-  )
-}
 
 export default function App() {
   return (
@@ -20,15 +12,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/trips" replace />} />
-          <Route
-            path="trips"
-            element={
-              <PlaceholderPage
-                title="Trips & Accounting"
-                description="Manage fishing vessel trips, fish sales income, and trip expenses with integrated crew cash advance deductions."
-              />
-            }
-          />
+          <Route path="trips" element={<TripsPage />} />
+          <Route path="trips/:id" element={<TripDetailPage />} />
           <Route path="vessels" element={<VesselsPage />} />
           <Route path="crew" element={<CrewPage />} />
           <Route path="kasbon" element={<KasbonPage />} />
