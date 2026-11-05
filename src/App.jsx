@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import VesselsPage from './pages/VesselsPage'
+import CrewPage from './pages/CrewPage'
 
 function PlaceholderPage({ title, description }) {
   return (
@@ -28,15 +29,7 @@ export default function App() {
             }
           />
           <Route path="vessels" element={<VesselsPage />} />
-          <Route
-            path="crew"
-            element={
-              <PlaceholderPage
-                title="Crew Members (ABK)"
-                description="Manage vessel crew members, roles, contact information, and active kasbon balances."
-              />
-            }
-          />
+          <Route path="crew" element={<CrewPage />} />
           <Route
             path="kasbon"
             element={
