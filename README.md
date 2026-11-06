@@ -1,6 +1,6 @@
-# FishCatch Frontend
+# SeaBooks Frontend
 
-Web client for **FishCatch** — Fishing Fleet Management, Crew Cash Advances (*Kasbon*), and Trip Bookkeeping.
+Web client for **SeaBooks** — Fishing Fleet Management, Crew Cash Advances (*Kasbon*), and Trip Bookkeeping.
 
 ## Tech Stack
 - **React 18** & **Vite 6**
