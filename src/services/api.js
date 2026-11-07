@@ -1,4 +1,5 @@
-const API_BASE = '/api'
+const rawBase = (import.meta.env.VITE_API_BASE_URL || '/api').trim().replace(/\/+$/, '')
+const API_BASE = rawBase.endsWith('/api') ? rawBase : `${rawBase}/api`
 export const TOKEN_STORAGE_KEY = 'fishcatch_token'
 export const USER_STORAGE_KEY = 'fishcatch_user'
 
