@@ -45,7 +45,7 @@ export default function Layout() {
             </div>
             <div>
               <span className="font-bold text-lg tracking-tight text-brand-navy block leading-none">
-                FishCatch
+                Seaboks
               </span>
               <span className="text-xs text-brand-navy/60 font-medium">
                 Fleet & Accounting
@@ -135,7 +135,7 @@ export default function Layout() {
             <div className="w-8 h-8 rounded-lg bg-brand-accent flex items-center justify-center text-brand-surface">
               <Anchor className="w-4 h-4" />
             </div>
-            <span className="font-bold text-base text-brand-navy">FishCatch</span>
+            <span className="font-bold text-base text-brand-navy">Seabooks</span>
           </div>
           <button
             onClick={() => setMobileOpen(true)}
