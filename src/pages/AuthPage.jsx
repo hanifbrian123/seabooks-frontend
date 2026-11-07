@@ -139,7 +139,7 @@ export default function AuthPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-brand-navy leading-tight">
-            FishCatch
+            Seabooks
           </h1>
           <p className="text-xs font-medium text-brand-navy/65">
             Fishing Fleet Management & Bookkeeping
